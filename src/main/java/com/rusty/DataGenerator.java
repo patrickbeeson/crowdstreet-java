@@ -20,10 +20,16 @@ public class DataGenerator {
     private NumberBag bag;
     private int[] dataSet;
 
+    /**
+     * Initialize data with a number bag.
+     */
     public DataGenerator(NumberBag bag) {
         this.bag = bag;
     }
 
+    /**
+     * Initialize data via provided array (for testing).
+     */
     public DataGenerator(int[] dataSet) {
         this.dataSet = dataSet;
     }
@@ -68,7 +74,7 @@ public class DataGenerator {
     }
 
     /**
-     * Swaps two values at random in the data set.
+     * Attempts to swap two values at random in the data set.
      *
      * Note, the data set is already in a valid state after initialization, so
      * the randomization process needs to maintain a valid state.
@@ -86,7 +92,7 @@ public class DataGenerator {
     }
 
     /**
-     * Swaps two values at random only if after the swap, no consecutive numbers are equal.
+     * Swaps two values at random, but only if after the swap, no consecutive numbers are equal.
      *
      * @return true if the swap occurred
      */
