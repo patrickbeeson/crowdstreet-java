@@ -1,6 +1,8 @@
 # crowdstreet-java
 
-Generates a random data set, containing the numbers 1-20, with the following distribution:
+This is a Java program that solves the Java portion of the Crowdstreet assignment.
+
+It generates a randomized data set, containing the numbers 1-20, with the following distribution:
  - 1-12: 83000
  - 13: 1000
  - 14: 500
@@ -11,13 +13,13 @@ Generates a random data set, containing the numbers 1-20, with the following dis
  - 19: 10
  - 20: 5
 
-And the requirement that no consecutive elements are equal.
+The only requirement is that no consecutive elements are equal.
 
 ## Approach
 
 The approach I took was to construct an initial ordering of the data that meets the requirements (which is the tricky part)
 and then randomize the list while keeping the constraints valid. The construction works as long as one value doesn't make
-up more than 50% of all the numbers.
+up more than 50% of all the values.
 
 Randomization is done by calling swap on 2 randomly chosen elements, and only swapping if the constraints aren't violated.
 

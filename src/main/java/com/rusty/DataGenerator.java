@@ -14,6 +14,9 @@ import java.util.Random;
 
 /**
  * This class builds a randomized data set with a specific distribution of numbers.
+ *
+ * The distribution can be specified using a NumberBag, which accepts pairs
+ * describing what value to add, and how many times it should appear.
  */
 public class DataGenerator {
 
@@ -30,19 +33,23 @@ public class DataGenerator {
     /**
      * Initialize data via provided array (for testing).
      */
-    public DataGenerator(int[] dataSet) {
+    DataGenerator(int[] dataSet) {
         this.dataSet = dataSet;
     }
 
     /**
      * Creates a data set by constructing an initial ordering that adhere's to the
-     * rule that no adjacent elements are equal.
+     * constraints that no adjacent elements are equal, which gets harder as fewer
+     * values make up a larger majority of the total.
      *
-     * In this case, it gets all the values from the number bag ordered by the amount
-     * of each number, then splits the list equally in 2 and zips them together.
+     * The naive approach of trying to add each number randomly into a place in a
+     * fixed size array can lead to situations where no solution is possible while
+     * maintaining the constraints. Building the list one value at a time is also tricky.
      *
-     * This method, by construction, ensures that the initial list is valid, but not
-     * yet randomized.
+     * In this method, it gets all the values from the number bag ordered by the amount
+     * of each value (highest to lowest), then splits the list equally in 2 and zips
+     * them together. This method, by construction, ensures that the initial list is
+     * valid, but not yet randomized.
      */
     public int[] initializeData() {
         if (dataSet != null) {
@@ -52,11 +59,8 @@ public class DataGenerator {
         List<Integer> values = bag.getValuesSortedByAmount();
 
         int half = values.size() / 2;
-        List<Integer> first = values.subList(0, half);
-        List<Integer> second = values.subList(half, values.size());
-
-        Iterator<Integer> firstIterator = first.iterator();
-        Iterator<Integer> secondIterator = second.iterator();
+        Iterator<Integer> firstIterator = values.subList(0, half).iterator();
+        Iterator<Integer> secondIterator = values.subList(half, values.size()).iterator();
 
         List<Integer> data = new LinkedList<>();
         while (firstIterator.hasNext() && secondIterator.hasNext()) {
@@ -74,7 +78,7 @@ public class DataGenerator {
     }
 
     /**
-     * Attempts to swap two values at random in the data set.
+     * Attempts to swap two values at random in the data set many times.
      *
      * Note, the data set is already in a valid state after initialization, so
      * the randomization process needs to maintain a valid state.
@@ -92,7 +96,8 @@ public class DataGenerator {
     }
 
     /**
-     * Swaps two values at random, but only if after the swap, no consecutive numbers are equal.
+     * Swaps two values at random, but only if after the swap, no consecutive numbers
+     * are equal.
      *
      * @return true if the swap occurred
      */
@@ -106,13 +111,22 @@ public class DataGenerator {
         return false;
     }
 
+    /**
+     * Verifies that swapping the values in spot 'a' and 'b' doesn't introduce
+     * consecutive duplicates in either spot, which means checking both ways.
+     *
+     * @return true if swapping maintains the constraints
+     */
     @VisibleForTesting
     protected boolean canSwap(int a, int b) {
         return checkNeighbors(a, dataSet[b]) && checkNeighbors(b, dataSet[a]);
     }
 
     /**
-     * Verifies that the values of the neighbors to the left and right of 'index', aren't equal to 'value'
+     * Verifies that the values of the neighbors to the left and right of 'index',
+     * aren't equal to 'value'.
+     *
+     * @return true if the value can be inserted into the index maintaining constraints
      */
     private boolean checkNeighbors(int index, int value) {
         return (index - 1 >= 0 && dataSet[index - 1] != value && index + 1 <= dataSet.length - 1 && dataSet[index + 1] != value) ||
@@ -120,7 +134,8 @@ public class DataGenerator {
     }
 
     /**
-     * Scan the data set for a particular value and print the line number.
+     * Scan the data set for a particular value and print the line number it
+     * will appear on when written out to a file.
      */
     private void findValue(int[] data, int value) {
         for (int i = 0; i < data.length; i++) {

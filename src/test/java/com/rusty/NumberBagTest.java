@@ -15,7 +15,7 @@ public class NumberBagTest {
         bag.addNumbers(5, 4); // add four 5's
         bag.addNumbers(9, 3); // add three 9's
 
-        // should sort by largest amount, not value
+        // should sort by largest amount (not value) and from high to low
         List<Integer> values = bag.getValuesSortedByAmount();
         assert (values.equals(new LinkedList<>(Arrays.asList(5, 5, 5, 5, 9, 9, 9, 7))));
     }

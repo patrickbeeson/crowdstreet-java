@@ -8,9 +8,6 @@ import java.util.Map;
 /**
  * This class allows easy construction of a distribution of numbers by specifying
  * value / amount pairs, where each 'value' is included 'amount' times in the bag.
- *
- * Once all the values have been added to the bag, call a method to return the
- * values in a particular way.
  */
 public class NumberBag {
 
@@ -20,6 +17,9 @@ public class NumberBag {
         distribution = new HashMap<>();
     }
 
+    /**
+     * Specify that 'value' should appear in the distribution 'amount' times.
+     */
     public void addNumbers(int value, int amount) {
         distribution.put(value, amount);
     }
