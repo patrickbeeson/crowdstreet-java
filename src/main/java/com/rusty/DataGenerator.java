@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class builds a randomized data set with a specific distribution of numbers.
@@ -19,6 +20,8 @@ import java.util.Random;
  * describing what value to add, and how many times it should appear.
  */
 public class DataGenerator {
+
+    private final AtomicBoolean initialized = new AtomicBoolean(false);
 
     private NumberBag bag;
     private int[] dataSet;
@@ -35,6 +38,7 @@ public class DataGenerator {
      */
     DataGenerator(int[] dataSet) {
         this.dataSet = dataSet;
+        initialized.getAndSet(true);
     }
 
     /**
@@ -52,7 +56,7 @@ public class DataGenerator {
      * valid, but not yet randomized.
      */
     public int[] initializeData() {
-        if (dataSet != null) {
+        if (initialized.get()) {
             return dataSet;
         }
 
@@ -74,6 +78,7 @@ public class DataGenerator {
         }
 
         dataSet = data.stream().mapToInt(Integer::intValue).toArray();
+        initialized.getAndSet(true);
         return dataSet;
     }
 
