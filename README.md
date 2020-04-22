@@ -18,8 +18,11 @@ The only requirement is that no consecutive elements are equal.
 ## Approach
 
 The approach I took was to construct an initial ordering of the data that meets the requirements (which is the tricky part)
-and then randomize the list while keeping the constraints valid. The construction works as long as one value doesn't make
-up more than 50% of all the values.
+and then randomize the list while keeping the constraints valid.
+
+The construction works as long as one value doesn't make up too many of the total, meaning:
+ - if the list has an even number of values, it can be up to and including `50%` of the list: `1, 2, 1, 3`
+ - if the list has an odd number of values, it can be up to and including `1 + 50%` of the list: `1, 2, 1, 3, 1`
 
 Randomization is done by calling swap on 2 randomly chosen elements, and only swapping if the constraints aren't violated.
 

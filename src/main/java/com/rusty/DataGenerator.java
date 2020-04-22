@@ -34,7 +34,8 @@ public class DataGenerator {
     }
 
     /**
-     * Initialize data via provided array (for testing).
+     * Initialize data via provided array. Only use for testing. Assumes that the
+     * array is already in a valid state.
      */
     DataGenerator(int[] dataSet) {
         this.dataSet = dataSet;
@@ -56,13 +57,21 @@ public class DataGenerator {
      * valid, but not yet randomized.
      */
     public int[] initializeData() {
-        if (initialized.get()) {
+        // only initialize data once, first caller wins
+        if (!initialized.compareAndSet(false, true)) {
             return dataSet;
         }
 
         List<Integer> values = bag.getValuesSortedByAmount();
 
-        int half = values.size() / 2;
+        // verify one value isn't more than allowed
+        int half = (int) Math.ceil(values.size() / 2.0);
+        int most = bag.getValueOfLargestAmount();
+
+        if (values.get(half) == most) {
+            throw new IllegalStateException("One value makes up too many of the distribution.");
+        }
+
         Iterator<Integer> firstIterator = values.subList(0, half).iterator();
         Iterator<Integer> secondIterator = values.subList(half, values.size()).iterator();
 
@@ -73,12 +82,11 @@ public class DataGenerator {
         }
 
         // if there was an odd amount, there will be one last element here
-        if (secondIterator.hasNext()) {
-            data.add(secondIterator.next());
+        if (firstIterator.hasNext()) {
+            data.add(firstIterator.next());
         }
 
         dataSet = data.stream().mapToInt(Integer::intValue).toArray();
-        initialized.getAndSet(true);
         return dataSet;
     }
 
@@ -142,9 +150,9 @@ public class DataGenerator {
      * Scan the data set for a particular value and print the line number it
      * will appear on when written out to a file.
      */
-    private void findValue(int[] data, int value) {
-        for (int i = 0; i < data.length; i++) {
-            if (data[i] == value) {
+    private void findValue(int value) {
+        for (int i = 0; i < dataSet.length; i++) {
+            if (dataSet[i] == value) {
                 System.out.println("Value: " + value + " found at line: " + (i + 1));
             }
         }
@@ -153,16 +161,31 @@ public class DataGenerator {
     /**
      * Write the data set to a file, one number per line.
      */
-    private void writeDataSet(String fname, int[] data) {
+    private void writeDataSet(String fname) {
         Charset charset = Charset.forName("US-ASCII");
         File file = new File(fname);
         try (BufferedWriter writer = Files.newBufferedWriter(file.toPath(), charset)) {
-            for (int i = 0; i < data.length; i++) {
-                writer.write(data[i] + "\n");
+            for (int i = 0; i < dataSet.length; i++) {
+                writer.write(dataSet[i] + "\n");
             }
         } catch (IOException e) {
             System.err.format("IOException: %s%n", e);
         }
+    }
+
+    /**
+     * Validate the dataSet meets its constraints.
+     */
+    public boolean validateState() {
+        int a = dataSet[0];
+        for (int i = 1; i < dataSet.length; i++) {
+            if (a == dataSet[i]) {
+                return false;
+            } else {
+                a = dataSet[i];
+            }
+        }
+        return true;
     }
 
     public static void main(String[] args) {
@@ -179,15 +202,17 @@ public class DataGenerator {
 
         DataGenerator dataGenerator = new DataGenerator(bag);
 
-        System.out.println("Initialized data:");
+        System.out.println("- Initialized Data -");
         int[] initializedData = dataGenerator.initializeData();
-        dataGenerator.findValue(initializedData, 20);
-        //dataGenerator.writeDataSet("initialized.output", initializedData);
+        System.out.println("initial state of data set is " + (dataGenerator.validateState() ? "" : "not ") + "valid.");
+        dataGenerator.findValue(20);
+        //dataGenerator.writeDataSet("initialized.output");
 
-        System.out.println("Randomized data:");
+        System.out.println("- Randomized Data -");
         int[] randomizedData = dataGenerator.randomizeData(10000000); // ~10x
-        dataGenerator.findValue(randomizedData, 20);
-        dataGenerator.writeDataSet("test.output", randomizedData);
+        System.out.println("randomized state of data set is " + (dataGenerator.validateState() ? "" : "not ") + "valid.");
+        dataGenerator.findValue(20);
+        dataGenerator.writeDataSet("test.output");
     }
 
 }

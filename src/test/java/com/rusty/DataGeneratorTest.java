@@ -4,6 +4,8 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
+import static org.junit.Assert.fail;
+
 public class DataGeneratorTest {
 
     @Test
@@ -15,11 +17,62 @@ public class DataGeneratorTest {
 
         DataGenerator dataGenerator = new DataGenerator(bag);
         int[] list = dataGenerator.initializeData();
+        assert (dataGenerator.validateState());
 
         // the list from the bag: [5, 5, 5, 5, 9, 9, 9, 7]
         // split in half: [5, 5, 5, 5] [9, 9, 9, 7]
         // zipped together: [5, 9, 5, 9, 5, 9, 5, 7]
         assert Arrays.equals(list, new int[]{5, 9, 5, 9, 5, 9, 5, 7});
+    }
+
+    @Test
+    public void atLimitOddTest() {
+        NumberBag bag = new NumberBag();
+        bag.addNumbers(6, 1); // add one 6
+        bag.addNumbers(5, 5); // add five 5's
+        bag.addNumbers(9, 3); // add three 9's
+
+        DataGenerator dataGenerator = new DataGenerator(bag);
+        int[] list = dataGenerator.initializeData();
+        assert (dataGenerator.validateState());
+
+        // the list from the bag: [5, 5, 5, 5, 5, 9, 9, 9, 6]
+        // split in half: [5, 5, 5, 5, 5] [9, 9, 9, 6]
+        // zipped together: [5, 9, 5, 9, 5, 9, 5, 6, 5]
+        assert Arrays.equals(list, new int[]{5, 9, 5, 9, 5, 9, 5, 6, 5});
+    }
+
+    @Test
+    public void atLimitEvenTest() {
+        NumberBag bag = new NumberBag();
+        bag.addNumbers(6, 2); // add two 6's
+        bag.addNumbers(5, 5); // add five 5's
+        bag.addNumbers(9, 3); // add three 9's
+
+        DataGenerator dataGenerator = new DataGenerator(bag);
+        int[] list = dataGenerator.initializeData();
+        assert (dataGenerator.validateState());
+
+        // the list from the bag: [5, 5, 5, 5, 5, 9, 9, 9, 6, 6]
+        // split in half: [5, 5, 5, 5, 5] [9, 9, 9, 6, 6]
+        // zipped together: [5, 9, 5, 9, 5, 9, 5, 6, 5]
+        assert Arrays.equals(list, new int[]{5, 9, 5, 9, 5, 9, 5, 6, 5, 6});
+    }
+
+    @Test
+    public void overLimitTest() {
+        NumberBag bag = new NumberBag();
+        bag.addNumbers(6, 1); // add one 6
+        bag.addNumbers(5, 6); // add six 5's
+        bag.addNumbers(9, 3); // add three 9's
+
+        DataGenerator dataGenerator = new DataGenerator(bag);
+        try {
+            // should throw an exception and skip the fail call
+            dataGenerator.initializeData();
+            fail();
+        } catch (IllegalStateException e) {
+        }
     }
 
     @Test
@@ -31,12 +84,12 @@ public class DataGeneratorTest {
         bag.addNumbers(6, 20);
 
         DataGenerator dataGenerator = new DataGenerator(bag);
-        int[] list = dataGenerator.initializeData();
-        assert (validState(list));
+        dataGenerator.initializeData();
+        assert (dataGenerator.validateState());
 
         for (int i = 0; i < 1000; i++) {
-            int[] randomized = dataGenerator.randomizeData(1000);
-            assert (validState(randomized));
+            dataGenerator.randomizeData(1000);
+            assert (dataGenerator.validateState());
         }
     }
 
@@ -70,18 +123,6 @@ public class DataGeneratorTest {
         assert (!dataGenerator.canSwap(4, 7));
         assert (!dataGenerator.canSwap(5, 6));
         assert (!dataGenerator.canSwap(6, 7));
-    }
-
-    private boolean validState(int[] data) {
-        int a = data[0];
-        for (int i = 1; i < data.length; i++) {
-            if (a == data[i]) {
-                return false;
-            } else {
-                a = data[i];
-            }
-        }
-        return true;
     }
 
 }

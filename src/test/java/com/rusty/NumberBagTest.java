@@ -9,6 +9,17 @@ import java.util.List;
 public class NumberBagTest {
 
     @Test
+    public void countTest() {
+        NumberBag bag = new NumberBag();
+        bag.addNumbers(7, 1); // add one 7
+        bag.addNumbers(5, 4); // add four 5's
+        bag.addNumbers(9, 3); // add three 9's
+
+        assert (8 == bag.getSize());
+        assert (5 == bag.getValueOfLargestAmount());
+    }
+
+    @Test
     public void valuesSortedByAmountTest() {
         NumberBag bag = new NumberBag();
         bag.addNumbers(7, 1); // add one 7

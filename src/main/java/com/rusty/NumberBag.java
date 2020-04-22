@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  * This class allows easy construction of a distribution of numbers by specifying
- * value / amount pairs, where each 'value' is included 'amount' times in the bag.
+ * (value, amount) pairs, where each 'value' is included 'amount' times in the bag.
  */
 public class NumberBag {
 
@@ -22,6 +22,20 @@ public class NumberBag {
      */
     public void addNumbers(int value, int amount) {
         distribution.put(value, amount);
+    }
+
+    /**
+     * Get the total count of all values in the bag.
+     */
+    public int getSize() {
+        return distribution.values().stream().reduce(0, (a, b) -> a + b);
+    }
+
+    /**
+     * Get the value which appears the most in the bag.
+     */
+    public int getValueOfLargestAmount() {
+        return distribution.entrySet().stream().max((a, b) -> a.getValue() > b.getValue() ? 1 : -1).get().getKey();
     }
 
     /**
